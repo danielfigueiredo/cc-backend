@@ -9,7 +9,7 @@ function insert(object) {
 }
 
 function findById(id) {
-  return commonProvider.findById(model, id);
+  return commonProvider.findById(model, id, {password: false});
 }
 
 function findByEmail(email) {

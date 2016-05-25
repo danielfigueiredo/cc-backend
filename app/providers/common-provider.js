@@ -1,7 +1,7 @@
 'use strict';
 
-const BluePromise = require('bluebird');
-const mongoose = BluePromise.promisifyAll(require('mongoose'));
+const bluebird = require('bluebird');
+const mongoose = bluebird.promisifyAll(require('mongoose'));
 
 
 function insert(Model, object) {
@@ -12,12 +12,12 @@ function isIdValid(id) {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
-function findOne(model, filter) {
-  return model.findOne(filter);
+function findOne(model, filter, projection) {
+  return model.findOne(filter, projection);
 }
 
-function findById(model, id) {
-  return isIdValid(id) ? findOne(model, {'_id': id}) : BluePromise.resolve(null);
+function findById(model, id, projection) {
+  return isIdValid(id) ? findOne(model, {'_id': id}, projection) : bluebird.resolve(null);
 }
 
 module.exports = {

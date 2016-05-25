@@ -30,7 +30,13 @@ function generateSchema(mongoose) {
       type: String,
       unique: true,
       sparse: true
-    }
+    },
+    receipts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Receipt'
+      }
+    ]
   }, {
     collection: 'users'
   });

@@ -1,10 +1,12 @@
 'use strict';
 
-const userRoute = require('./user-router');
-const authRoute = require('./auth-router');
+const userRouter = require('./user-router');
+const authRouter = require('./auth-router');
+const receiptRouter = require('./receipt-router');
 
 
 module.exports = (server) => {
-  authRoute.addRoutes(server, '/auth');
-  userRoute.addRoutes(server, '/users');
+  authRouter.addRoutes(server, '/auth');
+  userRouter.addRoutes(server, '/users');
+  receiptRouter.addRoutes(server, '/receipts');
 };

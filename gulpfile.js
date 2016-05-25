@@ -8,6 +8,7 @@ const runSequence = require('run-sequence');
 const jscs = require('gulp-jscs');
 const jshint = require('gulp-jshint');
 
+
 gulp.task('lint', () =>
   gulp.src([
     'app/**/*.js',
@@ -26,7 +27,7 @@ gulp.task('ut-tests', (cb) => {
     .pipe(istanbul({includeUntested: true}))
     .pipe(istanbul.hookRequire())
     .on('finish', () =>
-      gulp.src(['test/src/unit/**/*-spec.js'])
+      gulp.src(['test/src/unit/**/*-test.js'])
         .pipe(gulpMocha({reporter: 'spec'}))
         .pipe(istanbul.writeReports({
           dir: 'test/coverage/ut-coverage/reports',
@@ -47,7 +48,7 @@ gulp.task('api-tests', (cb) => {
     .pipe(istanbul.hookRequire())
     .on('finish', () =>
       gulp.src([
-          'test/src/api/**/*-spec.js',
+          'test/src/api/**/*-test.js',
           'test/src/api/global.js'
         ])
         .pipe(gulpMocha({reporter: 'spec'}))

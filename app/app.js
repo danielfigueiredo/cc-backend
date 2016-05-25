@@ -7,7 +7,7 @@ const CookieParser = require('restify-cookies');
 const session = require('express-session');
 const flash = require('connect-flash');
 const passport = require('passport');
-const databaseApi = require('./apis/database-api');
+const database = require('./apis/database-api');
 const logger = require('./apis/logger-api');
 const configService = require('./services/config-service');
 const routers = require('./routers');
@@ -17,8 +17,8 @@ const server = restify.createServer({
 });
 
 
-function setup() {
-  server.use(restify.bodyParser());
+function setup({uploadDir}) {
+  server.use(restify.bodyParser({uploadDir}));
   server.use(restify.queryParser());
   server.use(restify.acceptParser(server.acceptable));
   server.use(CookieParser.parse);
@@ -39,20 +39,24 @@ function setup() {
   server.use(flash());
   server.use(passport.initialize());
   server.use(passport.session());
+  server.on('InternalServer', (req, res, err, cb) => {
+    logger.error(err);
+    return cb();
+  });
   routers(server);
 }
 
-function startup(port) {
-  setup();
-  return databaseApi.connect().then(() =>
-    bluebird.promisify(server.listen, {context: server})(port)
+function startup(config) {
+  setup(config);
+  return database.connect().then(() =>
+    bluebird.promisify(server.listen, {context: server})(config.port)
   );
 }
 
 function shutdown() {
   if (!lamb.isNil(server)) {
     server.close();
-    databaseApi.close();
+    database.close();
   }
 }
 

@@ -6,7 +6,10 @@ const app = require('./app/app');
 
 function startup() {
   const port = process.env.PORT || 3010;
-  app.startup(port).then(() =>
+  const config = {
+    port
+  };
+  app.startup(config).then(() =>
     logger.info(
       `Server started at ${new Date().toISOString()} on port ${port}`
     )

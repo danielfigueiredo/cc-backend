@@ -1,10 +1,13 @@
 'use strict';
 
+const sinon = require('sinon');
+const fse = require('fs-extra');
+const constants = require('./constants');
 const logger = require('../../../app/apis/logger-api');
 const app = require('../../../app/app');
-const databaseUtil = require('../../../app/apis/database-api');
-const sinon = require('sinon');
+const database = require('../../../app/apis/database-api');
 const configService = require('../../../app/services/config-service');
+
 
 /**
  * Mock server configuration so we can run against test database.
@@ -13,17 +16,27 @@ sinon.stub(configService, 'getDBConnectionURI', () =>
   configService.getByKey('MONGO_TEST_URI') + configService.getByKey('MONGO_TEST_DB')
 );
 
+function clearAndCreateDir(dir) {
+  fse.removeSync(dir);
+  fse.mkdirsSync(dir);
+}
+
 /**
  * Start up the server and clean up the database before running tests.
  */
 before(function(done) {
   this.timeout(1000);
   const port = configService.getByKey('NODE_TEST_PORT');
-  app.startup(port).then(() => {
+  const config = {
+    port,
+    uploadDir: constants.UPLOAD_TEST_DIR
+  };
+  clearAndCreateDir(config.uploadDir);
+  app.startup(config).then(() => {
     logger.info(
       `Server started at ${new Date().toISOString()} on port ${port}`
     );
-    databaseUtil.dropDatabase();
+    database.dropDatabase();
     logger.info(
       'Test database was successfully cleaned up before execution'
     );

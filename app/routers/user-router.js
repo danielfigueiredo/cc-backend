@@ -9,7 +9,8 @@ const postErrors = [
   'USER.ERROR.MULTIPLE_KEYS',
   'USER.ERROR.FIRST_NAME_MAX_LENGTH',
   'USER.ERROR.LAST_NAME_MAX_LENGTH',
-  'USER.ERROR.EMPTY_PASSWORD'
+  'USER.ERROR.EMPTY_PASSWORD',
+  'USER.ERROR.INVALID_EMAIL'
 ];
 
 
@@ -17,7 +18,8 @@ function addRoutes(server, prefix) {
   server.post(
     prefix + '/', 
     (req, res, next) => userService.insert(req.body).then((result) => {
-      res.send(201, result);
+      res.header('location', result._id);
+      res.send(201);
       return next();
     }).catch(err => {
       if (postErrors.indexOf(err) > -1) {

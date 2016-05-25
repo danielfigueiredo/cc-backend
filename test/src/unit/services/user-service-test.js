@@ -9,14 +9,16 @@ describe('User services unit test', () => {
 
   describe('User success scenarios', () => {
     it('should create user with email key', (done) => {
-      const user = {
+      const password = 'lukeleia';
+      userService.validateUser({
         email: 'darth@vader.com',
-        password: 'leia@jedi.com'
-      };
-      userService.validateUser(user).then(
+        password: password
+      }).then(
         (validUser) =>
-          encryptionService.compare(user.password, validUser.password).then(
-            isEqual => isEqual ? done() : assert.fail('Password encryption failed')
+          encryptionService.compare(password, validUser.password).then(
+            isEqual => isEqual ? done() : bluebird.reject(
+              'Password encryption failed, password used to create user is invalid but should work'
+            )
           )
       ).catch(
         err => done(err)
@@ -47,10 +49,7 @@ describe('User services unit test', () => {
       userService.validateUser(null).then(
         () => done()
       ).catch(
-        err => {
-          assert.equal(err, 'USER.ERROR.EMPTY_USER');
-          done();
-        }
+        err => done(assert.equal(err, 'USER.ERROR.EMPTY_USER'))
       );
     });
 
@@ -58,10 +57,7 @@ describe('User services unit test', () => {
       userService.validateUser({}).then(
         () => done()
       ).catch(
-        err => {
-          assert.equal(err, 'USER.ERROR.EMPTY_KEY');
-          done();
-        }
+        err => done(assert.equal(err, 'USER.ERROR.EMPTY_KEY'))
       );
     });
 
@@ -82,22 +78,32 @@ describe('User services unit test', () => {
       ];
       bluebird.each(
         users,
-        (user) => userService.validateUser(user).catch(
-          err => assert.equal(err, 'USER.ERROR.MULTIPLE_KEYS')
-        )
+        (user) => userService.validateUser(user)
       ).then(
         () => done()
+      ).catch(
+        err => done(assert.equal(err, 'USER.ERROR.MULTIPLE_KEYS'))
       );
     });
 
     it('should not create a user with email without password', (done) => {
       userService.validateUser({
         email: 'without@passwrod.com'
-      }).catch(
-        err => {
-          assert.equal(err, 'USER.ERROR.EMPTY_PASSWORD');
-          done();
-        }
+      }).then(
+        () => done(assert.fail('User was created but didn\'t provide a password'))
+      ).catch(
+        err => done(assert.equal(err, 'USER.ERROR.EMPTY_PASSWORD'))
+      );
+    });
+
+    it('should not create users with invalid email', (done) => {
+      userService.validateUser({
+        email: 'Han solo',
+        password: 'IKnow'
+      }).then(
+        () => done(assert.fail('User was created but has an invalid email'))
+      ).catch(
+        err => done(assert.equal(err, 'USER.ERROR.INVALID_EMAIL'))
       );
     });
 

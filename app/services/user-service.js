@@ -23,6 +23,25 @@ function countUserKeys(user) {
   return key;
 }
 
+function validateCachCounterUser(user) {
+  if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$/g.test(user.email)) {
+    return bluebird.reject('USER.ERROR.INVALID_EMAIL');
+  }
+  if (!lamb.isNil(user.firstName) && user.firstName.length > 20) {
+    return bluebird.reject('USER.ERROR.FIRST_NAME_MAX_LENGTH');
+  }
+  if (!lamb.isNil(user.lastName) && user.lastName.length > 50) {
+    return bluebird.reject('USER.ERROR.LAST_NAME_MAX_LENGTH');
+  }
+  if (lamb.isNil(user.password)) {
+    return bluebird.reject('USER.ERROR.EMPTY_PASSWORD');
+  } else {
+    return encryptService.encrypt(user.password).then(hash =>
+      lamb.merge(user, {password: hash})
+    );
+  }
+}
+
 function validateUser(user) {
   if (lamb.isNil(user)) {
     return bluebird.reject('USER.ERROR.EMPTY_USER');
@@ -33,20 +52,8 @@ function validateUser(user) {
   } else if (keyQty < 1) {
     return bluebird.reject('USER.ERROR.EMPTY_KEY');
   }
-  if (!lamb.isNil(user.firstName) && user.firstName.length > 20) {
-    return bluebird.reject('USER.ERROR.FIRST_NAME_MAX_LENGTH');
-  }
-  if (!lamb.isNil(user.lastName) && user.lastName.length > 50) {
-    return bluebird.reject('USER.ERROR.LAST_NAME_MAX_LENGTH');
-  }
   if (!lamb.isNil(user.email)) {
-    if (lamb.isNil(user.password)) {
-      return bluebird.reject('USER.ERROR.EMPTY_PASSWORD');
-    } else {
-      return encryptService.encrypt(user.password).then(hash =>
-        lamb.merge(user, {password: hash})
-      );
-    }
+    return validateCachCounterUser(user);
   } else {
     return bluebird.resolve();
   }

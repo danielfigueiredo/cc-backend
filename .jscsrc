@@ -23,7 +23,7 @@
   "disallowSpacesInCallExpression": true,
   "maximumLineLength": 200,
   "requireBlocksOnNewline": true,
-  "requireCapitalizedConstructors": true,
+  "requireCapitalizedConstructors": false,
   "requireCommaBeforeLineBreak": true,
   "requireCurlyBraces": [
     "if",
